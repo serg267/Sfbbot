@@ -23,7 +23,7 @@ async def stop_bot(bot: Bot) -> None:
 
 async def main() -> None:
     """launch bot"""
-    logging.basicConfig(level=logging.INFO,
+    logging.basicConfig(level=logging.DEBUG,
                         format="%(asctime)s - [%(levelname)s] - %(name)s - "
                                "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s")
 

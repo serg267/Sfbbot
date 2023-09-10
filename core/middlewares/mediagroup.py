@@ -1,4 +1,5 @@
 import asyncio
+import json
 from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.dispatcher.event.bases import CancelHandler
@@ -22,7 +23,7 @@ class AlbumMiddleware(BaseMiddleware):
                        data: Dict[str, Any]) -> Any:
 
         if not event.media_group_id:  # if it's not media group do nothing
-            return
+            return await handler(event, data)
 
         try:
             self.album_data[event.media_group_id].append(event)  # all next messages received

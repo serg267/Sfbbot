@@ -17,15 +17,13 @@ async def command_help(message: Message, bot: Bot) -> None:
 
 async def forward_msg_to_admin_chat(message: Message, bot: Bot) -> None:
     """This handler will forward a message to admin chat"""
-    json_str = json.dumps(message.__dict__, default=str, indent=True)
-    print(json_str)
+    # json_str = json.dumps(message.__dict__, default=str, indent=True)
+    # print(json_str)
     await bot.forward_message(chat_id=ADMINCHAT, from_chat_id=message.from_user.id, message_id=message.message_id)
 
 
 async def forward_media_to_admin_chat(message: Message, bot: Bot, album: list[types.Message]) -> None:
     """This handler will forward a complete album of any type."""
-    # json_str = json.dumps(message.__dict__, default=str)
-    # print(json_str)
 
     if not album:
         album = [message]
