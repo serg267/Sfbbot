@@ -1,5 +1,4 @@
 import asyncio
-import json
 from typing import Callable, Dict, Any, Awaitable
 from aiogram import BaseMiddleware
 from aiogram.dispatcher.event.bases import CancelHandler

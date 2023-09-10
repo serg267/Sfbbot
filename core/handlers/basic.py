@@ -1,8 +1,12 @@
 import json
+from typing import Dict
+
 from aiogram import Bot, types
 from aiogram.types import Message, InputMediaPhoto, MessageEntity
 from config import ADMINCHAT, SAY_HELLO, SAY_HELP
 import logging
+
+from core.models.models import LinkedMessage
 
 
 async def command_start(message: Message, bot: Bot) -> None:
@@ -17,9 +21,17 @@ async def command_help(message: Message, bot: Bot) -> None:
 
 async def forward_msg_to_admin_chat(message: Message, bot: Bot) -> None:
     """This handler will forward a message to admin chat"""
+    json_str = json.dumps(message.__dict__, default=str)
+    print(json_str)
     # json_str = json.dumps(message.__dict__, default=str, indent=True)
     # print(json_str)
-    await bot.forward_message(chat_id=ADMINCHAT, from_chat_id=message.from_user.id, message_id=message.message_id)
+    msg = await bot.forward_message(chat_id=ADMINCHAT, from_chat_id=message.from_user.id, message_id=message.message_id)
+
+    linked_msg = LinkedMessage(msg.message_id)
+    linked_msg.set_first_msg(message)
+
+    json_str = json.dumps(msg.__dict__, default=str)
+    print(json_str)
 
 
 async def forward_media_to_admin_chat(message: Message, bot: Bot, album: list[types.Message]) -> None:
@@ -69,14 +81,21 @@ async def forward_media_to_admin_chat(message: Message, bot: Bot, album: list[ty
         except ValueError:
             await message.answer("This type of album is not supported by bot.")
 
-    await bot.send_media_group(chat_id=ADMINCHAT, media=media)
+    msgs = await bot.send_media_group(chat_id=ADMINCHAT, media=media)
+    linked_msg = LinkedMessage(msgs[0].message_id)
+    linked_msg.set_first_msg(message)
 
 
 async def answer_to_user(message: Message, bot: Bot) -> None:
     """This handler will forward reply to user from admin chat """
-    # user_id = message.reply_to_message.forward_from.id or None # forward message to author of the fist message
-    user_id = message.from_user.id or None
+    linked_msg = LinkedMessage.get_element(message.reply_to_message.message_id)
+    chat_id = linked_msg.first_message_chat_id
+    msg_id = linked_msg.first_message_id
+
     try:
-        await bot.send_message(user_id, message.text)
+        json_str = json.dumps(message.__dict__, default=str)
+        print(json_str)
+        logging.debug(f'answer_to_user {chat_id}')
+        await bot.send_message(chat_id=chat_id, text=message.text, reply_to_message_id=msg_id)
     except Exception as error:
         logging.error(error, exc_info=True)
