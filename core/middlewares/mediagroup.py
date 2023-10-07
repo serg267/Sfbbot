@@ -35,4 +35,3 @@ class AlbumMiddleware(BaseMiddleware):
             del self.album_data[event.media_group_id]  # clean up after taking the album_data
 
         return await handler(event, data)
-

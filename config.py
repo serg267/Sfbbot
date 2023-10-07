@@ -20,5 +20,7 @@ forwarded_content = {'text', 'sticker', 'photo', 'document', 'audio', 'media',
 
 SAY_HELLO = 'Здравствуйте, '
 SAY_HELP = 'Напишите ваш вопрос и мы ответим Вам в ближайшее время'
-START_BOT = '<i>SFBbot запущен</i>\n<b>Белогор заступает на дежурство!</b>'
-STOP_BOT = '<i>SFBbot остановлен!</i>\n<b>Белогор пошел спать!</b>'
+START_BOT = '<i>SFBbot запущен</i>\n<b>Бот запущен!</b>'
+STOP_BOT = '<i>SFBbot остановлен!</i>\n<b>Бот остановлен!</b>'
+
+EMO1 = '\U0001F7E1'

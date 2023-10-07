@@ -1,13 +1,12 @@
 from aiogram import Bot, Dispatcher
 from config import TELEGRAM_TOKEN, ADMINCHAT, START_BOT, STOP_BOT
-from aiogram.filters import Command
-from aiogram import F
 import asyncio
 import logging
 
+from core.commands import register_base_commands_router
+from core.db import create_the_engine, url_object, get_session_maker, proceed_schemas
 
-from core.handlers.basic import command_start, forward_media_to_admin_chat, \
-    answer_to_user, command_help, forward_msg_to_admin_chat
+from core.handlers import register_user_handlers_router
 from core.middlewares.mediagroup import AlbumMiddleware
 
 
@@ -27,28 +26,21 @@ async def main() -> None:
                         format="%(asctime)s - [%(levelname)s] - %(name)s - "
                                "(%(filename)s).%(funcName)s(%(lineno)d) - %(message)s")
 
-    bot = Bot(token=TELEGRAM_TOKEN, parse_mode='HTML')
+    bot = Bot(token=TELEGRAM_TOKEN)
     dp = Dispatcher()
+    # middleware register
     dp.message.middleware.register(AlbumMiddleware())
-
+    # bot commands register
+    register_base_commands_router(dp)
+    # bot handlers register
+    register_user_handlers_router(dp)
     dp.startup.register(start_bot)
     dp.shutdown.register(stop_bot)
 
-    dp.message.register(command_start, Command(commands=['start']))
-    dp.message.register(command_help, Command(commands=['help']))
-    dp.message.register(answer_to_user,
-                        F.chat.id == int(ADMINCHAT),
-                        F.text | F.photo | F.audio | F.video | F.document | F.voice)
-
-    dp.message.register(forward_msg_to_admin_chat,
-                        F.chat.id != int(ADMINCHAT),
-                        F.media_group_id.func(lambda media_group_id: media_group_id is None),
-                        F.text | F.photo | F.audio | F.video | F.document | F.voice)
-
-    dp.message.register(forward_media_to_admin_chat,
-                        F.chat.id != int(ADMINCHAT),
-                        ~F.media_group_id.func(lambda media_group_id: media_group_id is None),
-                        F.text | F.photo | F.audio | F.video | F.document | F.voice)
+    async_engine = create_the_engine(url_object())
+    print(async_engine)
+    session_maker = get_session_maker(async_engine)
+    print(session_maker)
 
     try:
         await dp.start_polling(bot)
